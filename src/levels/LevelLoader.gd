@@ -11,7 +11,7 @@ func _ready() -> void:
 
 
 func load_level(level_name:String, parent:Node) -> void:
-	var level_path = "res://scenes/levels/"+level_name+".tscn"
+	var level_path = "res://src/levels/"+level_name+".tscn"
 	
 	# Remove the current level from the SceneTree
 	if current_level == null:

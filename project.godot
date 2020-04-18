@@ -12,12 +12,12 @@ _global_script_classes=[ {
 "base": "Node2D",
 "class": "GameWorld",
 "language": "GDScript",
-"path": "res://scenes/GameWorld.gd"
+"path": "res://src/GameWorld.gd"
 }, {
 "base": "Node2D",
 "class": "LevelLoader",
 "language": "GDScript",
-"path": "res://scenes/levels/LevelLoader.gd"
+"path": "res://src/levels/LevelLoader.gd"
 } ]
 _global_script_class_icons={
 "GameWorld": "",
@@ -27,7 +27,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Sliding"
-run/main_scene="res://scenes/GameWorld.tscn"
+run/main_scene="res://src/GameWorld.tscn"
 config/icon="res://icon.png"
 
 [display]
