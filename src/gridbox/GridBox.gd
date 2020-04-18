@@ -3,7 +3,7 @@ class_name GridBox extends KinematicBody2D
 # Class Description
 
 onready var MoveTween :Tween = $Tween
-export var sliding_time := 0.25
+export var sliding_time := 0.20
 var Grid :TileMap
 var sliding := false
 

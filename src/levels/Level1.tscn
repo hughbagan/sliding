@@ -66,5 +66,8 @@ position = Vector2( 80, 32 )
 [node name="GridBox3" parent="Grid" instance=ExtResource( 4 )]
 position = Vector2( 112, 64 )
 
+[node name="GridBox4" parent="Grid" instance=ExtResource( 4 )]
+position = Vector2( 192, 80 )
+
 [node name="Player" parent="." instance=ExtResource( 2 )]
 position = Vector2( 88, 88 )
