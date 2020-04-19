@@ -8,7 +8,7 @@ var Grid :TileMap
 var sliding := false
 
 
-func initialize(_tilemap :TileMap) -> void:
+func init_grid(_tilemap :TileMap) -> void:
 	Grid = _tilemap
 	position = calculate_destination(Vector2())
 
@@ -44,4 +44,14 @@ func can_move(move_to: Vector2) -> bool:
 	var future_transform : = Transform2D(transform)
 	future_transform.origin = move_to
 	return not test_move(future_transform, Vector2())
+
+
+func on_boxbutton_pressed():
+	$Pressed.show()
+	$Unpressed.hide()
+
+
+func on_boxbutton_unpressed():
+	$Pressed.hide()
+	$Unpressed.show()
 
