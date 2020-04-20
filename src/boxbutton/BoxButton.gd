@@ -13,12 +13,12 @@ func _ready():
 
 func _on_body_entered(body: PhysicsBody2D) -> void:
 	if body is GridBox and body.has_method("on_boxbutton_pressed"):
-		body.on_boxbutton_pressed()
-	#emit_signal("pressed", id)
+		body.on_BoxButton_pressed()
+	emit_signal("pressed")
 
 
 func _on_body_exited(body: PhysicsBody2D) -> void:
 	if body is GridBox and body.has_method("on_boxbutton_unpressed"):
-		body.on_boxbutton_unpressed()
-	#emit_signal("unpressed", id)
+		body.on_BoxButton_unpressed()
+	emit_signal("unpressed")
 

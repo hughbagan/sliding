@@ -46,12 +46,12 @@ func can_move(move_to: Vector2) -> bool:
 	return not test_move(future_transform, Vector2())
 
 
-func on_boxbutton_pressed():
+func on_BoxButton_pressed():
 	$Pressed.show()
 	$Unpressed.hide()
 
 
-func on_boxbutton_unpressed():
+func on_BoxButton_unpressed():
 	$Pressed.hide()
 	$Unpressed.show()
 

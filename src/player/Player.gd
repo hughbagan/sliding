@@ -25,15 +25,15 @@ func _physics_process(delta: float) -> void:
 		push_timer = 0.0
 
 
-func check_box_collision(delta:float, motion: Vector2) -> void:
-	if abs(motion.x) + abs(motion.y) > 1:
+func check_box_collision(delta:float, caller_motion: Vector2) -> void:
+	if abs(caller_motion.x) + abs(caller_motion.y) > 1:
 		# Ensures we can't push diagonally
 		return
 	var box : = get_slide_collision(0).collider as GridBox
 	if box:
 		push_timer += delta
 		if push_timer > PUSH_TIME:
-			box.push(push_speed * motion)
+			box.push(push_speed * caller_motion)
 	else:
 		push_timer = 0.0
 
