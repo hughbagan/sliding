@@ -2,10 +2,9 @@ class_name GridBox extends KinematicBody2D
 # Originally written by guilhermehto on Github from gdquest.com
 # Class Description
 
-
-onready var MoveTween :Tween = $Tween
 onready var spr_size : Vector2 = $Unpressed.texture.get_size()
-var Grid :TileMap
+onready var MoveTween : Tween = $Tween
+var Grid : TileMap
 var sliding := false
 var throwing := false
 
@@ -13,6 +12,11 @@ var throwing := false
 func init_grid(_tilemap :TileMap) -> void:
 	Grid = _tilemap
 	position = calculate_destination(Vector2())
+
+
+func _ready():
+	$ThrowRayCast.force_raycast_update()
+	print(self, $ThrowRayCast.get_collider())
 
 
 func push(direction :Vector2, sliding_time :float) -> void:
@@ -36,27 +40,25 @@ func push(direction :Vector2, sliding_time :float) -> void:
 		sliding = false
 
 
-func throw(direction :Vector2, throwing_time :float) -> void:
+func throw() -> void:
 	if throwing:
 		return
-	var space_state := get_world_2d().direct_space_state
-	# assume direction is to the right, but will have to change later
-	print(get_global_position(), OS.get_window_size())
-	var ray_from := Vector2(get_global_position().x+spr_size.x, get_global_position().y+spr_size.y)
-	var ray_to := Vector2(OS.get_window_size().x, get_global_position().y+spr_size.y)
-	var result := space_state.intersect_ray(ray_from, ray_to, [self])
-	print(result)
-	#var move_to = calculate_destination(result.position)
-	var move_to :Vector2 = result.position
-	print(move_to)
-	#if can_move(move_to):
+	$ThrowRayCast.force_raycast_update()
+	var collider = $ThrowRayCast.get_collider()
+	var move_to : Vector2 = $ThrowRayCast.get_collision_point()
+	#print(move_to, $ThrowRayCast.get_collider().position)
+	print(collider.get_class())
+	if collider.has_method("throw"):
+		move_to = Vector2(move_to.x - (1+spr_size.x), move_to.y - 8)
+	else:
+		move_to = Vector2(move_to.x - spr_size.x, move_to.y - spr_size.y*0.5)
 	MoveTween.interpolate_property(self,
 		"global_position",
 		global_position,
 		move_to,
-		throwing_time,
-		Tween.TRANS_LINEAR,	# TRANS_CUBIC
-		Tween.EASE_IN_OUT 	# EASE_OUT
+		0.2, # throwing time
+		Tween.TRANS_CUBIC,	# TRANS_CUBIC
+		Tween.EASE_IN 	# EASE_OUT
 	)
 	MoveTween.start()
 	throwing = true
