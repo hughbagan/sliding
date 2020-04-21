@@ -5,32 +5,39 @@ class_name Player extends KinematicBody2D
 
 export var move_speed := 125.0
 var motion := Vector2()
-enum Direction {UP, DOWN, LEFT, RIGHT}
-var direction = Direction.DOWN
+
+var direction :int = Global.Direction.DOWN
 const PUSH_SPEED := 0.2 	# for a Tween
 const PUSH_BUFFER := 0.35 	# in seconds
 var push_timer := 0.0
 var throwing := false
 var throwing_object : GridBox
 var throw_cast_length : float = min(OS.get_window_size().x, OS.get_window_size().y)*0.5
-
-
-func _ready() -> void:
-	#print("Player anim texture: %dx%d" % [spr_w, spr_h])
-	pass
+var throw_direction :int # passed to throwing_object
 
 
 func _physics_process(delta: float) -> void:
 	# Throw boxes from afar
 	if Input.is_action_just_pressed("space"):
+		# Activate the casting
 		if not $ThrowRayCast.enabled:
 			$ThrowRayCast.set_enabled(true)
 			raycast(direction)
-		else:
-			throw()
-			$ThrowRayCast.set_enabled(false)
 	if $ThrowRayCast.enabled:
-		return # Don't allow movement while casting
+		# Choose a direction to throw in
+		if Input.is_action_just_pressed("player_right"):
+			throw_direction = Global.Direction.RIGHT
+		elif Input.is_action_just_pressed("player_left"):
+			throw_direction = Global.Direction.LEFT
+		elif Input.is_action_just_pressed("player_down"):
+			throw_direction = Global.Direction.DOWN
+		elif Input.is_action_just_pressed("player_up"):
+			throw_direction = Global.Direction.UP
+		else:
+			return # Don't allow movement while throwing (necessary?)
+		if throwing_object is GridBox:
+			throwing_object.throw(throw_direction)
+		$ThrowRayCast.set_enabled(false)
 	
 	# Movement
 	motion.x = int(Input.get_action_strength("player_right")) - int(Input.get_action_strength("player_left"))
@@ -43,13 +50,13 @@ func _physics_process(delta: float) -> void:
 		push_timer = 0.0
 	# Set direction based on movement
 	if Input.is_action_just_pressed("player_right"):
-		direction = Direction.RIGHT
+		direction = Global.Direction.RIGHT
 	elif Input.is_action_just_pressed("player_left"):
-		direction = Direction.LEFT
+		direction = Global.Direction.LEFT
 	elif Input.is_action_just_pressed("player_down"):
-		direction = Direction.DOWN
+		direction = Global.Direction.DOWN
 	elif Input.is_action_just_pressed("player_up"):
-		direction = Direction.UP
+		direction = Global.Direction.UP
 
 
 func check_box_collision(delta:float, caller_motion: Vector2) -> void:
@@ -69,25 +76,19 @@ func raycast(cast_direction:int) -> void:
 	var space_state := get_world_2d().direct_space_state
 	# use global coordinates, not local to node
 	var ray_to : Vector2
-	if cast_direction == Direction.RIGHT:
-		ray_to = Vector2(OS.get_window_size().x, get_global_position().y)
-	elif cast_direction == Direction.LEFT:
-		ray_to = Vector2(0, get_global_position().y)
-	elif cast_direction == Direction.UP:
-		ray_to = Vector2(get_global_position().x, 0)
-	elif cast_direction == Direction.DOWN:
-		ray_to = Vector2(get_global_position().x, OS.get_window_size().y)
+	if cast_direction == Global.Direction.RIGHT:
+		ray_to = Vector2(throw_cast_length, 0)
+	elif cast_direction == Global.Direction.LEFT:
+		ray_to = Vector2(-throw_cast_length, 0)
+	elif cast_direction == Global.Direction.UP:
+		ray_to = Vector2(0, -throw_cast_length)
+	elif cast_direction == Global.Direction.DOWN:
+		ray_to = Vector2(0, throw_cast_length)
 	$ThrowRayCast.set_cast_to(ray_to)
 	$ThrowRayCast.force_raycast_update()
-	var collider = $ThrowRayCast.
-	var result := space_state.intersect_ray(get_global_position(), ray_to, [self])
-	print(result)
-	if result.collider is GridBox:
-		throwing_object = result.collider
+	print("SELECT: ", $ThrowRayCast.get_collider())
+	if $ThrowRayCast.get_collider() is GridBox:
+		throwing_object = $ThrowRayCast.get_collider()
 
-
-func throw() -> void:
-	#var throw_direction = Vector2(1.0, 0.0)
-	throwing_object.throw()
 
 

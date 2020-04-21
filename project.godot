@@ -54,6 +54,10 @@ config/name="Sliding"
 run/main_scene="res://src/GameWorld.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+Global="*res://src/autoload/Global.gd"
+
 [display]
 
 window/size/width=640

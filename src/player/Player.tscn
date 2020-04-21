@@ -5,7 +5,6 @@
 
 [node name="Player" type="KinematicBody2D"]
 script = ExtResource( 2 )
-move_speed = null
 
 [node name="Sprite" type="Sprite" parent="."]
 texture = ExtResource( 1 )
@@ -24,3 +23,4 @@ __meta__ = {
 polygon = PoolVector2Array( 6, -7, 7, -6, 7, 6, 6, 7, -6, 7, -7, 6, -7, -6, -6, -7 )
 
 [node name="ThrowRayCast" type="RayCast2D" parent="."]
+cast_to = Vector2( 0, 16 )

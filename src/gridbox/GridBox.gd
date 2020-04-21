@@ -3,10 +3,11 @@ class_name GridBox extends KinematicBody2D
 # Class Description
 
 onready var spr_size : Vector2 = $Unpressed.texture.get_size()
-onready var MoveTween : Tween = $Tween
 var Grid : TileMap
 var sliding := false
 var throwing := false
+# NOTE: Player.gd has a variable of the same name:
+var throw_cast_length : float = min(OS.get_window_size().x, OS.get_window_size().y)*0.5
 
 
 func init_grid(_tilemap :TileMap) -> void:
@@ -16,7 +17,7 @@ func init_grid(_tilemap :TileMap) -> void:
 
 func _ready():
 	$ThrowRayCast.force_raycast_update()
-	print(self, $ThrowRayCast.get_collider())
+	#print(self, " ", $ThrowRayCast.get_collider())
 
 
 func push(direction :Vector2, sliding_time :float) -> void:
@@ -24,9 +25,8 @@ func push(direction :Vector2, sliding_time :float) -> void:
 		return
 	# TODO: Is something fucky here with direction? (`push_time` in Player)
 	var move_to := calculate_destination(direction.normalized())
-	print(move_to)
 	if can_move(move_to):
-		MoveTween.interpolate_property(self,
+		$MoveTween.interpolate_property(self,
 			"global_position",
 			global_position,
 			move_to,
@@ -34,36 +34,10 @@ func push(direction :Vector2, sliding_time :float) -> void:
 			Tween.TRANS_LINEAR,	# TRANS_CUBIC
 			Tween.EASE_IN_OUT 	# EASE_OUT
 		)
-		MoveTween.start()
+		$MoveTween.start()
 		sliding = true
-		yield(MoveTween, "tween_completed")
+		yield($MoveTween, "tween_completed")
 		sliding = false
-
-
-func throw() -> void:
-	if throwing:
-		return
-	$ThrowRayCast.force_raycast_update()
-	var collider = $ThrowRayCast.get_collider()
-	var move_to : Vector2 = $ThrowRayCast.get_collision_point()
-	#print(move_to, $ThrowRayCast.get_collider().position)
-	print(collider.get_class())
-	if collider.has_method("throw"):
-		move_to = Vector2(move_to.x - (1+spr_size.x), move_to.y - 8)
-	else:
-		move_to = Vector2(move_to.x - spr_size.x, move_to.y - spr_size.y*0.5)
-	MoveTween.interpolate_property(self,
-		"global_position",
-		global_position,
-		move_to,
-		0.2, # throwing time
-		Tween.TRANS_CUBIC,	# TRANS_CUBIC
-		Tween.EASE_IN 	# EASE_OUT
-	)
-	MoveTween.start()
-	throwing = true
-	yield(MoveTween, "tween_completed")
-	throwing = false
 
 
 func calculate_destination(direction: Vector2) -> Vector2:
@@ -77,6 +51,63 @@ func can_move(move_to: Vector2) -> bool:
 	var future_transform : = Transform2D(transform)
 	future_transform.origin = move_to
 	return not test_move(future_transform, Vector2())
+
+
+func throw(throw_direction:int) -> void:
+	$ThrowRayCast.set_enabled(true)
+	if throwing:
+		return
+	# Set raycast direction that's passed from player input
+	var ray_to : Vector2
+	if throw_direction == Global.Direction.RIGHT:
+		ray_to = Vector2(throw_cast_length, 0)
+	elif throw_direction == Global.Direction.LEFT:
+		ray_to = Vector2(-throw_cast_length, 0)
+	elif throw_direction == Global.Direction.UP:
+		ray_to = Vector2(0, -throw_cast_length)
+	elif throw_direction == Global.Direction.DOWN:
+		ray_to = Vector2(0, throw_cast_length)
+	$ThrowRayCast.set_cast_to(ray_to)
+	# Now throw the raycast and get the resulting collider
+	$ThrowRayCast.force_raycast_update()
+	var collider = $ThrowRayCast.get_collider()
+	var move_to : Vector2 = $ThrowRayCast.get_collision_point()
+	print("THROW TO: ", collider.get_class(), " ", move_to)
+	# Make adjustments to the end position based on what we're colliding with
+	if collider.has_method("throw"):
+		# We're throwing ourselves at a GridBox; make changes accordingly
+		if throw_direction == Global.Direction.RIGHT:
+			move_to = Vector2(move_to.x - (1+spr_size.x), move_to.y - spr_size.y*0.5)
+		elif throw_direction == Global.Direction.LEFT:
+			move_to = Vector2(move_to.x + 1, move_to.y - spr_size.y*0.5)
+		elif throw_direction == Global.Direction.UP:
+			move_to = Vector2(move_to.x - spr_size.x*0.5, move_to.y - 1)
+		elif throw_direction == Global.Direction.DOWN:
+			move_to = Vector2(move_to.x - spr_size.x*0.5, move_to.y - (1+spr_size.y))
+	else:
+		# Throwing ourselves at the TileMap
+		# TODO: This block should be using the Grid's cell size
+		if throw_direction == Global.Direction.RIGHT:
+			move_to = Vector2(move_to.x - spr_size.x, move_to.y - spr_size.y*0.5)
+		elif throw_direction == Global.Direction.LEFT:
+			move_to = Vector2(move_to.x, move_to.y - spr_size.y*0.5)
+		elif throw_direction == Global.Direction.UP:
+			move_to = Vector2(move_to.x - spr_size.x*0.5, move_to.y)
+		elif throw_direction == Global.Direction.DOWN:
+			move_to = Vector2(move_to.x - spr_size.x*0.5, move_to.y - spr_size.y)
+	$MoveTween.interpolate_property(self,
+		"global_position",
+		global_position,
+		move_to,
+		0.2, # throwing time
+		Tween.TRANS_CUBIC,	# TRANS_CUBIC
+		Tween.EASE_IN 	# EASE_OUT
+	)
+	$MoveTween.start()
+	throwing = true
+	yield($MoveTween, "tween_completed")
+	throwing = false
+	$ThrowRayCast.set_enabled(false)
 
 
 func on_BoxButton_pressed():
