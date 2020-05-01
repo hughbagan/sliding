@@ -1,6 +1,7 @@
 class_name GridBox extends KinematicBody2D
-# Originally written by guilhermehto on Github from gdquest.com
+# push() written by guilhermehto on Github from gdquest.com
 # Class Description
+
 
 onready var spr_size : Vector2 = $Unpressed.texture.get_size()
 var Grid : TileMap
@@ -54,10 +55,11 @@ func can_move(move_to: Vector2) -> bool:
 
 
 func throw(throw_direction:int) -> void:
+	# This func raycasts in a given direction and Tweens self to it.
 	$ThrowRayCast.set_enabled(true)
 	if throwing:
 		return
-	# Set raycast direction that's passed from player input
+	# Set raycast direction that's obtained from input in Player
 	var ray_to : Vector2
 	if throw_direction == Global.Direction.RIGHT:
 		ray_to = Vector2(throw_cast_length, 0)
@@ -73,9 +75,8 @@ func throw(throw_direction:int) -> void:
 	var collider = $ThrowRayCast.get_collider()
 	var move_to : Vector2 = $ThrowRayCast.get_collision_point()
 	print("THROW TO: ", collider.get_class(), " ", move_to)
-	# Make adjustments to the end position based on what we're colliding with
-	if collider.has_method("throw"):
-		# We're throwing ourselves at a GridBox; make changes accordingly
+	# Make adjustments to the end position based on WHAT we're colliding with
+	if collider.has_method("throw"): # GridBox
 		if throw_direction == Global.Direction.RIGHT:
 			move_to = Vector2(move_to.x - (1+spr_size.x), move_to.y - spr_size.y*0.5)
 		elif throw_direction == Global.Direction.LEFT:
@@ -84,6 +85,18 @@ func throw(throw_direction:int) -> void:
 			move_to = Vector2(move_to.x - spr_size.x*0.5, move_to.y - 1)
 		elif throw_direction == Global.Direction.DOWN:
 			move_to = Vector2(move_to.x - spr_size.x*0.5, move_to.y - (1+spr_size.y))
+	elif collider.has_method("_physics_process"): # Player
+		# Round our destination to the nearest cell coordinate
+		if throw_direction == Global.Direction.RIGHT or throw_direction == Global.Direction.LEFT:
+			var rounded :float = round(move_to.x / Grid.cell_size.x) * Grid.cell_size.x
+			move_to = Vector2(rounded, move_to.y)
+			# Now adjust for the collision shapes...
+			move_to = Vector2(move_to.x, move_to.y - (spr_size.y*0.5))
+		elif throw_direction == Global.Direction.UP or throw_direction == Global.Direction.DOWN:
+			var rounded :float = round(move_to.y / Grid.cell_size.y) * Grid.cell_size.y
+			move_to = Vector2(move_to.x, rounded)
+			# Now adjust for the collision shapes...
+			move_to = Vector2(move_to.x - (spr_size.x*0.5), move_to.y)
 	else:
 		# Throwing ourselves at the TileMap
 		# TODO: This block should be using the Grid's cell size
@@ -95,13 +108,14 @@ func throw(throw_direction:int) -> void:
 			move_to = Vector2(move_to.x - spr_size.x*0.5, move_to.y)
 		elif throw_direction == Global.Direction.DOWN:
 			move_to = Vector2(move_to.x - spr_size.x*0.5, move_to.y - spr_size.y)
+	# Tween ourselves to the final destination
 	$MoveTween.interpolate_property(self,
 		"global_position",
 		global_position,
 		move_to,
 		0.2, # throwing time
-		Tween.TRANS_CUBIC,	# TRANS_CUBIC
-		Tween.EASE_IN 	# EASE_OUT
+		Tween.TRANS_CUBIC, # TRANS_CUBIC
+		Tween.EASE_IN # EASE_OUT
 	)
 	$MoveTween.start()
 	throwing = true
