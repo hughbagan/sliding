@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://assets/img-prototype/red_square_16x16.png" type="Texture" id=1]
+[ext_resource path="res://assets/img-prototype/red_button1.png" type="Texture" id=1]
 [ext_resource path="res://src/boxbutton/BoxButton.gd" type="Script" id=2]
+[ext_resource path="res://assets/img-prototype/red_button2.png" type="Texture" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 5, 5 )
@@ -9,8 +10,12 @@ extents = Vector2( 5, 5 )
 [node name="BoxButton" type="Area2D"]
 script = ExtResource( 2 )
 
-[node name="Sprite" type="Sprite" parent="."]
+[node name="Unpressed" type="Sprite" parent="."]
 texture = ExtResource( 1 )
+centered = false
+
+[node name="Pressed" type="Sprite" parent="."]
+texture = ExtResource( 3 )
 centered = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
