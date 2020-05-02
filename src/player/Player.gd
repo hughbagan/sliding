@@ -10,7 +10,7 @@ var looking := Vector2()
 var looking_direction :int = Global.Direction.DOWN
 
 const SLIDING_TIME := 0.23 	# for a Tween
-const PUSH_BUFFER := 0.35 	# in seconds
+const PUSH_BUFFER := 0.25 	# in seconds
 var push_timer := 0.0
 
 var throwing := false

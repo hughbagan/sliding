@@ -92,15 +92,20 @@ func throw(throw_direction:int) -> void:
 			var rounded :float = round(move_to.x / cell_size.x) * cell_size.x
 			move_to = Vector2(rounded, move_to.y)
 			# Now adjust for the collision shapes...
-			move_to = Vector2(move_to.x, move_to.y - (cell_size.y*0.5))
+			if throw_direction == Global.Direction.LEFT:
+				move_to = Vector2(move_to.x, move_to.y - (cell_size.y*0.5))
+			elif throw_direction == Global.Direction.RIGHT:
+				move_to = Vector2(move_to.x - cell_size.x, move_to.y - (cell_size.y*0.5))
 		elif throw_direction == Global.Direction.UP or throw_direction == Global.Direction.DOWN:
 			var rounded :float = round(move_to.y / cell_size.y) * cell_size.y
 			move_to = Vector2(move_to.x, rounded)
 			# Now adjust for the collision shapes...
-			move_to = Vector2(move_to.x - (cell_size.x*0.5), move_to.y)
+			if throw_direction == Global.Direction.UP:
+				move_to = Vector2(move_to.x - (cell_size.x*0.5), move_to.y + cell_size.y)
+			elif throw_direction == Global.Direction.DOWN:
+				move_to = Vector2(move_to.x - (cell_size.x*0.5), move_to.y - cell_size.y)
 	else:
 		# Throwing ourselves at the TileMap
-		# TODO: This block should be using the Grid's cell size
 		if throw_direction == Global.Direction.RIGHT:
 			move_to = Vector2(move_to.x - cell_size.x, move_to.y - cell_size.y*0.5)
 		elif throw_direction == Global.Direction.LEFT:
