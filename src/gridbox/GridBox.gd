@@ -101,7 +101,7 @@ func throw(throw_direction:int) -> void:
 			move_to = Vector2(move_to.x, rounded)
 			# Now adjust for the collision shapes...
 			if throw_direction == Global.Direction.UP:
-				move_to = Vector2(move_to.x - (cell_size.x*0.5), move_to.y + cell_size.y)
+				move_to = Vector2(move_to.x - (cell_size.x*0.5), move_to.y)
 			elif throw_direction == Global.Direction.DOWN:
 				move_to = Vector2(move_to.x - (cell_size.x*0.5), move_to.y - cell_size.y)
 	else:
