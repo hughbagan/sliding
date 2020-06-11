@@ -16,17 +16,19 @@ width = 2.0
 [node name="Center" type="Position2D" parent="."]
 position = Vector2( 320, 366 )
 
-[node name="Sprite" type="Sprite" parent="Center"]
-position = Vector2( 81.6685, 25.14 )
+[node name="YSort" type="YSort" parent="."]
+
+[node name="Sprite" type="Sprite" parent="YSort"]
+position = Vector2( 401.669, 391.14 )
 scale = Vector2( 2, 4 )
 texture = ExtResource( 1 )
 
-[node name="Sprite2" type="Sprite" parent="Center"]
-position = Vector2( 142.424, 11.3571 )
+[node name="Sprite2" type="Sprite" parent="YSort"]
+position = Vector2( 462.424, 377.357 )
 scale = Vector2( 2, 4 )
 texture = ExtResource( 2 )
 
-[node name="Sprite3" type="Sprite" parent="Center"]
-position = Vector2( 198.695, 1.76425 )
+[node name="Sprite3" type="Sprite" parent="YSort"]
+position = Vector2( 518.695, 367.764 )
 scale = Vector2( 2, 4 )
 texture = ExtResource( 3 )
