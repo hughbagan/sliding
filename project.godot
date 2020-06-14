@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Sprite",
+"class": "BattleActor",
+"language": "GDScript",
+"path": "res://src/battle/BattleActor.gd"
+}, {
 "base": "Area2D",
 "class": "BoxButton",
 "language": "GDScript",
@@ -40,6 +45,7 @@ _global_script_classes=[ {
 "path": "res://src/player/Player.gd"
 } ]
 _global_script_class_icons={
+"BattleActor": "",
 "BoxButton": "",
 "Door": "",
 "GameWorld": "",

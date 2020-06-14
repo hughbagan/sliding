@@ -1,68 +1,71 @@
 extends Node2D
 
 onready var center :Vector2 = $Center.get_position()
+var oval_radius := Vector2(270.0, 15.0) # the ellipse that the actors move along
 onready var actors := [$YSort/Char1, $YSort/Char2, $YSort/Char3, $YSort/Enemy]
-var oval_radii := Vector2(270.0, 15.0) # the ellipse that the actors to move along
-onready var actors_min := Vector2(center.x - oval_radii.x, center.y - oval_radii.y)
-onready var actors_max := Vector2(center.x + oval_radii.x, center.y + oval_radii.y)
-var actors_x := [] # cos(actors_x[i])
+onready var actors_min := Vector2(center.x - oval_radius.x, center.y - oval_radius.y)
+onready var actors_max := Vector2(center.x + oval_radius.x, center.y + oval_radius.y)
+
 var offset := 0.1
-var tweening := false
+
 var tween_x := []
+var tweening := false
 
 
 func _ready():
 	# Initialize
 	actors[0].set_position(actors_min)
 	for i in range(actors.size()):
-		var start_x = 0.6 + (i*offset)
+		actors[i].x = 0.6 + (i*offset)
 		if actors[i].get_name() == "Enemy":
-			start_x = 1.7
-		actors_x.append(start_x)
+			actors[i].x = 1.7
 		tween_x.append(0.0)
-	print(actors_x)
-	#$BattleTween.set_tween_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
-	#$BattleTween.set_tween_property(self)
 
 
 func _physics_process(delta):
-	if tweening:
+	# Get input, which affects x
+	if Input.is_action_pressed("ui_left"):
 		for i in range(actors.size()):
-			var pos_x : float = actors_min.x + (( cos(PI*actors_x[i] + PI) +1) * oval_radii.x)
-			var pos_y : float = actors_min.y + ((sin(PI*actors_x[i])) * oval_radii.y)
-			#var pos_y : float = actors_min.y + ((cos(2*x+PI)+1) * oval_radii.y)
-			actors[i].set_position(Vector2(pos_x, pos_y))
+			actors[i].x -= 0.01
+		print(actors[3].x)
+	elif Input.is_action_pressed("ui_right"):
+		for i in range(actors.size()):
+			actors[i].x += 0.01
+		print(actors[3].x)
+	elif Input.is_action_just_pressed("1"):
+		_actors_set_position(1, true)
+	elif Input.is_action_just_pressed("2"):
+		_actors_set_position(2, true)
 	
-	else:
-		# Get input, which affects x
-		if Input.is_action_pressed("ui_left"):
-			for i in range(actors_x.size()):
-				actors_x[i] -= 0.01
-			print(actors_x)
-		elif Input.is_action_pressed("ui_right"):
-			for i in range(actors_x.size()):
-				actors_x[i] += 0.01
-			print(actors_x)
-		elif Input.is_action_just_pressed("1"):
-			_actors_set_position(1)
-		elif Input.is_action_just_pressed("2"):
-			_actors_set_position(2, true)
-		
-		# Run x through the trig expressions to get positions
-		for i in range(actors.size()):
-			var pos_x : float = actors_min.x + (( cos(PI*actors_x[i] + PI) +1) * oval_radii.x)
-			var pos_y : float = actors_min.y + ((sin(PI*actors_x[i])) * oval_radii.y)
-			#var pos_y : float = actors_min.y + ((cos(2*x+PI)+1) * oval_radii.y)
-			actors[i].set_position(Vector2(pos_x, pos_y))
+	# Run the x vars through the trig expressions to get positions
+	for i in range(actors.size()):
+		actors[i].set_position(oval_position(oval_fraction_x(actors[i].x), oval_fraction_y(actors[i].x)))
 
 
-func oval_fraction(x_coord:float) -> Vector2:
+func oval_fraction_x(x:float) -> float:
 	"""
-	Calculates two decimals that represents a fraction of the oval's size.
-	The return value is multiplied by the oval's size to get a position.
+	Calculates a decimal that represents a fraction of the 
+	oval's radius width (x).
 	"""
-	# TODO move lines 53-54 here, and put pos_x, pos_y into a Vector and return.
-	return Vector2(0,0)
+	return cos(PI*x + PI) + 1
+
+
+func oval_fraction_y(x:float) -> float:
+	"""
+	Calculates a decimal that represents a fraction of the 
+	oval's radius height (y).
+	"""
+	return sin(PI*x)
+
+
+func oval_position(x:float, y:float) -> Vector2:
+	"""
+	Calculates a position based on output from oval_fraction (ie. a fraction 
+	of the oval's height and width)
+	"""
+	var pos_x : float = actors_min.x + x * oval_radius.x
+	var pos_y : float = actors_min.y + y * oval_radius.y
+	return Vector2(pos_x, pos_y)
 
 
 func _actors_set_position(pos:int, tween:bool=false):
@@ -72,28 +75,34 @@ func _actors_set_position(pos:int, tween:bool=false):
 				tween_x[i] = 0.6 + (i*offset)
 				if actors[i].get_name() == "Enemy":
 					tween_x[i] = 1.7
+				$BattleTween.interpolate_property(actors[i], "x", actors[i].x, tween_x[i], 1.0, Tween.TRANS_EXPO, Tween.EASE_OUT)
+			$BattleTween.start()
+			tweening = true
 		else:
 			# Just set their position immediately
 			for i in range(actors.size()):
-				actors_x[i] = 0.6 + (i*offset)
+				actors[i].x = 0.6 + (i*offset)
 				if actors[i].get_name() == "Enemy":
-					actors_x[i] = 1.7
+					actors[i].x = 1.7
 	elif pos == 2:
 		if tween:
 			for i in range(actors.size()):
-				tween_x[i] = 1.4 - (i*offset)
 				if actors[i].get_name() == "Enemy":
 					tween_x[i] = 0.3
-				#$BattleTween.interpolate_property(self, "actors_x", actors_x, tween_x, 1.0, Tween.TRANS_EXPO, Tween.EASE_OUT)
-				#$BattleTween.interpolate_property($BattleTween, "value", 0.0, 1.0, 1.0, Tween.TRANS_EXPO, Tween.EASE_OUT)
-			#$BattleTween.start()
-			#tweening = true
+					$BattleTween.interpolate_property(actors[i], "x", actors[i].x, tween_x[i], 1.0, Tween.TRANS_EXPO, Tween.EASE_OUT)
+				else:
+					tween_x[i] = 1.4 - (i*offset)
+					$BattleTween.interpolate_property(actors[i], "x", actors[i].x, tween_x[i], 1.0, Tween.TRANS_EXPO, Tween.EASE_OUT)
+			$BattleTween.start()
+			tweening = true
 		else:
 			# Just set their position immediately
 			for i in range(actors.size()):
-				actors_x[i] = 1.4 - (i*offset)
+				actors[i].x = 1.4 - (i*offset)
 				if actors[i].get_name() == "Enemy":
-					actors_x[i] = 0.3
+					actors[i].x = 0.3
 
 
-
+func _on_BattleTween_tween_all_completed():
+	tweening = false
+	print("Done tweening!")
