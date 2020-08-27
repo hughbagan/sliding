@@ -86,7 +86,7 @@ func throw(throw_direction:int) -> void:
 		elif throw_direction == Global.Direction.LEFT:
 			move_to = Vector2(move_to.x + 1, move_to.y - cell_size.y*0.5)
 		elif throw_direction == Global.Direction.UP:
-			move_to = Vector2(move_to.x - cell_size.x*0.5, move_to.y - 1)
+			move_to = Vector2(move_to.x - cell_size.x*0.5, move_to.y + 1)
 		elif throw_direction == Global.Direction.DOWN:
 			move_to = Vector2(move_to.x - cell_size.x*0.5, move_to.y - (1+cell_size.y))
 	elif collider.has_method("_physics_process"): # Player
