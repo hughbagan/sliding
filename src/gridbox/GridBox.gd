@@ -74,6 +74,9 @@ func throw(throw_direction:int) -> void:
 	# Now throw the raycast and get the resulting collider
 	$ThrowRayCast.force_raycast_update()
 	var collider = $ThrowRayCast.get_collider()
+	if not collider:
+		print("collider is null")
+		return
 	var move_to : Vector2 = $ThrowRayCast.get_collision_point()
 	print("THROW TO: ", collider.get_class(), " ", move_to)
 	# Make adjustments to the end position based on WHAT we're colliding with
@@ -114,12 +117,14 @@ func throw(throw_direction:int) -> void:
 			move_to = Vector2(move_to.x - cell_size.x*0.5, move_to.y)
 		elif throw_direction == Global.Direction.DOWN:
 			move_to = Vector2(move_to.x - cell_size.x*0.5, move_to.y - cell_size.y)
+	# Calculate throwing time
+	var throwing_time = max(abs((global_position - move_to).x), abs((global_position - move_to).y)) / 48.0
 	# Tween ourselves to the final destination
 	$MoveTween.interpolate_property(self,
 		"global_position",
 		global_position,
 		move_to,
-		0.2, # throwing time
+		throwing_time, # throwing time
 		Tween.TRANS_CUBIC, # TRANS_CUBIC
 		Tween.EASE_IN # EASE_OUT
 	)

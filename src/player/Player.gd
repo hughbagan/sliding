@@ -6,7 +6,6 @@ class_name Player extends KinematicBody2D
 export var move_speed := 125.0
 var motion := Vector2()
 
-var looking := Vector2()
 var looking_direction :int = Global.Direction.DOWN
 
 const SLIDING_TIME := 0.23 	# for a Tween
@@ -16,15 +15,16 @@ var push_timer := 0.0
 var throwing := false
 var throwing_object
 var throw_cast_length : float = min(OS.get_window_size().x, OS.get_window_size().y)*0.5
-var throw_direction :int # passed to throwing_object
+var throw_direction :int = Global.Direction.NONE # passed to throwing_object
+
+
+func _ready():
+	Global.PlayerNode = self
 
 
 func _physics_process(delta: float) -> void:
 	# Looking and then Throwing
 	if not throwing:
-#		looking.x = int(Input.get_action_strength("player_look_right")) - int(Input.get_action_strength("player_look_left"))
-#		looking.y = int(Input.get_action_strength("player_look_down")) - int(Input.get_action_strength("player_look_up"))
-#		print(looking)
 		if Input.is_action_just_pressed("player_look_right"):
 			looking_direction = Global.Direction.RIGHT
 		elif Input.is_action_just_pressed("player_look_left"):
@@ -50,12 +50,13 @@ func _physics_process(delta: float) -> void:
 			throw_direction = Global.Direction.DOWN
 		elif Input.is_action_just_pressed("player_look_up"):
 			throw_direction = Global.Direction.UP
-		else:
-			return # Don't allow movement while throwing (necessary?)
-		if throwing_object is GridBox:
+		#else:
+		#	return # Disables movement while throwing
+		if throwing_object is GridBox and throw_direction != Global.Direction.NONE:
 			throwing_object.throw(throw_direction)
-		$ThrowRayCast.enabled = false
-		throwing = false
+			$ThrowRayCast.enabled = false
+			throwing = false
+			throw_direction = Global.Direction.NONE
 	
 	# Movement
 	motion.x = int(Input.get_action_strength("player_move_right")) - int(Input.get_action_strength("player_move_left"))
@@ -98,5 +99,3 @@ func raycast(cast_direction:int) -> Object:
 	print("SELECT: ", $ThrowRayCast.get_collider())
 	return $ThrowRayCast.get_collider()
 
-
-	
